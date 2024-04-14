@@ -11,7 +11,7 @@ struct Productos {
 
 int menu();
 void mostrarmenu(int opc, FILE*P, Productos producto, int codigo, char respuesta);
-void crearInventario(PRODUCTOS p[], int *dp);
+void salvarInventario(PRODUCTOS p[], int dp);
 void ingresar(FILE* P, Productos& producto);
 void eliminarDatoProd(V_PORDUCTOS *vp);
 void mostrar(FILE* P, Productos& producto);
@@ -61,8 +61,20 @@ void mostrarmenu(int opc, FILE*P, Productos producto, int codigo, char respuesta
     } while (respuesta == 'S' || respuesta == 's');
 }
 
-void crearInventario(PRODUCTOS p[], int *dp){
-	*dp=1
+void salvarInventario(PRODUCTOS p[], int dp){
+	PRODUCTOS v;
+	FILE *F;
+	F=fopen("inventario.dat","w");
+	if(F==NULL){
+		cout<<"no se ha abierto el archivo"<<endl;
+	}
+	else{
+		for(int i=0;i<dp;i++){
+			v=p[i];
+			fwrite(&v,size(v),1,F);
+		}
+		fclose(F);
+	}
 }
 
 void ingresar(FILE* P, Productos& producto) {
@@ -161,7 +173,7 @@ void mostrarPorCodigo(FILE* P, int codigo) {
 
 void recuperarDatos(FILE *F, PRODUCTOS p[], int *dp){
 	producto v;
-	F=fopen("d:inventario.dat","w");
+	F=fopen("d:inventario.dat","r");
 	*dp=-1
 	if(F==NULL){
 		cout<<"no se ha abierto el archivo"<endl;
@@ -187,7 +199,6 @@ void recuperarDatos(FILE *F, PRODUCTOS p[], int *dp){
 		}
 	}
 }
-
 void salir() {
     cout << "\n Gracias por usar nuestro sistema. Vuelva pronto.\n";
 }
