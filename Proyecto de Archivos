@@ -98,6 +98,29 @@ void LeerInventario(){
     }
 }
 
+void SalvarDatos(){
+   int i, j, n;
+   producto A, B;
+   FILE *f, *g;
+   f = fopen( "archivoOriginal.txt", "r" );
+   g = fopen( "archivoCopia.txt", "w" );
+   if( f == NULL && g == NULL ){
+      	cout << "ERROR, no se pudo abrir los archivos";
+   } else {
+      	fread( &a, sizeof( producto ), 1, f );
+      	while( !feof( f ) ){
+      		A.codProducto=B.codProducto;
+      		A.nomProducto=B.nomProducto;
+      		A.numCantidad=B.numCantidad;
+      		A.precio=B.precio;
+         	fwrite( &b, sizeof( AGENDA ), 1, g );
+         	fread( &a, sizeof( AGENDA ), 1, f );
+      	}
+      	fclose( f );
+      	fclose( g );
+   }
+}
+
 void ingresar(FILE* P, Productos& producto) {
     char temp[2];
     system("cls");
