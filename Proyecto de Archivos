@@ -77,6 +77,27 @@ void salvarInventario(PRODUCTOS p[], int dp){
 	}
 }
 
+void LeerInventario(){
+    int i, n;
+    productos A;
+    FILE *f;
+    f = fopen( "inventario.dat", "r" );
+    
+    if( f == NULL ){
+    	cout << "ERROR, no se pudo abrir el archivo";
+    } else {
+    	fread( &valor, sizeof( productos ), 1, f );
+    	while( !feof( f ) ){
+    		cout << "Codigo del producto:" << A.codProducto << endl;
+    		cout << "Nombre del producto:" << A.nomProducto << endl;
+    		cout << "Cantidad del producto:" << A.numCantidad << endl;
+    		cout << "Precio del producto:" << A.precio << endl;
+    		fread( &valor, sizeof( productos ), 1, f );
+    	}
+    fclose( f );
+    }
+}
+
 void ingresar(FILE* P, Productos& producto) {
     char temp[2];
     system("cls");
