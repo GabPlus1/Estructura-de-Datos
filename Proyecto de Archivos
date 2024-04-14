@@ -173,7 +173,7 @@ void mostrarPorCodigo(FILE* P, int codigo) {
 
 void recuperarDatos(FILE *F, PRODUCTOS p[], int *dp){
 	producto v;
-	F=fopen("d:inventario.dat","r");
+	F=fopen("inventario.dat","r");
 	*dp=-1
 	if(F==NULL){
 		cout<<"no se ha abierto el archivo"<endl;
