@@ -1,345 +1,343 @@
 #include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
+#include <conio.h>
+#include <string.h>
+#define STR50 50
+#define MAX 20
+
+#include <fstream>
+#include <cstring>
+#include <cstdio>
+#include <fstream>
+#include <sstream> // Para stringstream
+#include <string>
 
 using namespace std;
 
-struct Productos {
-    int codProducto;
-    char nomProducto[30];
-    int cantidad;
-    int preciounitario;
+struct PRODUCTOS{
+   int codProductos;
+   char nomProductos[STR50];
+   int numCantidad;
+   float precio;
+};
+struct V_PRODUCTOS{
+   PRODUCTOS p[MAX];
+   int dp;
 };
 
-int menu();
-void mostrarmenu(int opc, FILE*P, Productos producto, int codigo, char respuesta);
-void salvarInventario(PRODUCTOS p[], int dp);
-void ingresar(FILE* P, Productos& producto);
-void eliminarDatoProd(V_PORDUCTOS *vp);
-void mostrar(FILE* P, Productos& producto);
-void mostrarPorCodigo(FILE* P, int codigo);
-void recuperarDatos(FILE *F, PRODUCTOS p[], int *dp);
-void salir();
+struct OPERACIONES{
+   char codOperacion;
+   int numUnidades;
+};
 
-int main() {
-    int opc;
-    char rpta;
-    int codigo;
-    Productos producto;
-    FILE* P;
-	
-	mostrarmenu(opc, P, producto, codigo, rpta);
-    salir();
+struct V_MODIFICADOR{
+   OPERACIONES m[MAX];
+   int dm;
+};
+
+struct MODIFICADOR{
+   int codProducto;
+   V_MODIFICADOR vm;
+};
+
+void crearInventarioProductos();
+void leerInventarioProductos();
+void recuperarDatosProduc( V_PRODUCTOS *vp );
+void recuperarDatosModi( MODIFICADOR *vm );
+void mostrarDatosProduc( V_PRODUCTOS vp );
+void IngresarOperaciones( MODIFICADOR *vm );
+int buscarXCodigoProduc( V_PRODUCTOS vp, int codigo);
+void crearFileModificador();
+void leerFileModificador();
+
+
+void GIANcrearInventario(PRODUCTOS p[], int dp);
+
+int main()
+{
+   V_PRODUCTOS a;
+   MODIFICADOR b;
+
+   //crearFileModificador();
+
+   //leerFileModificador();
+   leerInventarioProductos();
+   
+
+   system("pause");
+   return(0);
 }
-
-int menu() {
-    int opcion;
-    cout << " ======================================";
-    cout << "\n          REGISTRO DE PRODUCTOS";
-    cout << "\n ======================================\n";
-    cout << "\n 1. Crear archivo de productos \n";
-    cout << " 2. Ingresar nuevo producto \n";
-    cout << " 3. Mostrar relacion de productos \n";
-    cout << " 4. Mostrar producto por codigo \n";
-    cout << "\n Digite una opcion ==> "; cin >> opcion;
-    return opcion;
-}
-
-void mostrarmenu(int opc, FILE*P, Productos producto, int codigo, char respuesta){
-	do {
-        system("cls");
-        opc = menu();
-		switch (opc) {
-            case 1: crear(P); break;
-            case 2: ingresar(P, producto); break;
-            case 3: mostrar(P, producto); break;
-            case 4: mostrarPorCodigo(P,codigo); break;
-            default:
-            	cout<<"\n Opcion invalida. Digite una opcion disponible.\n";
-		}
-		cout << "\n Desea continuar S/N ==> ";
-        cin >> respuesta;
-        system("cls");
-    } while (respuesta == 'S' || respuesta == 's');
-}
-
-void salvarInventario(PRODUCTOS p[], int dp){
+void GIANcrearInventario(PRODUCTOS p[], int dp){
 	PRODUCTOS v;
 	FILE *F;
-	F=fopen("inventario.dat","w");
+	F=fopen("inventario.data","w");
 	if(F==NULL){
 		cout<<"no se ha abierto el archivo"<<endl;
 	}
 	else{
 		for(int i=0;i<dp;i++){
 			v=p[i];
-			fwrite(&v,size(v),1,F);
+			fwrite(&v,sizeof(v),1,F);
 		}
 		fclose(F);
 	}
 }
 
-void LeerInventario(){
-    int i, n;
-    productos A;
-    FILE *f;
-    f = fopen( "inventario.dat", "r" );
-    
-    if( f == NULL ){
-    	cout << "ERROR, no se pudo abrir el archivo";
+void crearInventarioProductos()
+{
+   FILE *f;
+   int n, val;
+   PRODUCTOS p;
+   f = fopen( "InventarioProductosOriginal.dat", "w");
+   if( f == NULL ){
+      cout << "ERROR, no se pudo abrir el file";
+   } else {
+      cout << "Ingrese la cantidad de elementos: ";
+      cin >> n;
+      for( int i = 0; i < n; i++ ){
+         cout << "Elemento [" << i + 1 << "] "<<endl;
+         cout << "Codigo de producto: ";
+         cin >> p.codProductos;
+         fflush(stdin);
+         cout << "Nombre del producto: ";
+         cin.getline( p.nomProductos, sizeof( p.nomProductos ) );
+         fflush(stdin);
+         cout << "Cantidad: ";
+         cin >> p.numCantidad;
+         fflush(stdin);
+         cout << "Precio: S/";
+         cin >> p.precio;
+         fflush(stdin);
+         cout<<endl;
+         fwrite( &p, sizeof( PRODUCTOS ), 1, f );
+      }
+      fclose(f);
+   }
+
+
+}
+
+string centerString(const string& str, int width) {
+    int spaces = width - str.length();
+    int leftPadding = spaces / 2 + str.length();
+    return string(leftPadding, ' ') + str;
+}
+
+string centerNumber(int value, int width) {
+    stringstream ss;
+    ss << value;
+    string str = ss.str();
+    int spaces = width - str.length();
+    int leftPadding = spaces / 2 + str.length();
+    return string(leftPadding, ' ') + str;
+}
+
+void leerInventarioProductos() {
+   int i = 0;
+   PRODUCTOS p;
+   FILE *f;
+   f = fopen( "InventarioProductosOriginal.dat", "r+" );
+
+    if (f == NULL ) {
+        cout << "ERROR, no se pudo abrir el archivo";
     } else {
-    	fread( &valor, sizeof( productos ), 1, f );
-    	while( !feof( f ) ){
-    		cout << "Codigo del producto:" << A.codProducto << endl;
-    		cout << "Nombre del producto:" << A.nomProducto << endl;
-    		cout << "Cantidad del producto:" << A.numCantidad << endl;
-    		cout << "Precio del producto:" << A.precio << endl;
-    		fread( &valor, sizeof( productos ), 1, f );
-    	}
-    fclose( f );
+    	
+		fread( &p, sizeof( PRODUCTOS ), 1, f );
+		
+        cout << "\n =======================================================================================================";
+        cout << "\n                                  PRODUCTOS REGISTRADOS";
+        cout << "\n =======================================================================================================";
+        cout << "\n Nro   |   Codigo   |         Nombre          |   Cantidad de unidades   | Precio unitario (S/.)";
+        cout << "\n -------------------------------------------------------------------------------------------------------\n";
+
+        while ( !feof(f) ) {
+
+            cout << "" << centerNumber(i + 1, 6);
+            cout << centerNumber(p.codProductos, 13);
+            cout << centerString(p.nomProductos, 27);
+            cout << centerNumber(p.numCantidad, 28);
+            cout << centerNumber(p.precio, 24);
+
+            cout << endl;
+            fread( &p, sizeof( PRODUCTOS ), 1, f );
+            i++;
+        }
+        cout << " -------------------------------------------------------------------------------------------------------\n";
+
+        fclose( f );
     }
 }
 
-void SalvarDatos(){
-   int i, j, n;
-   producto A, B;
-   FILE *f, *g;
-   f = fopen( "archivoOriginal.txt", "r" );
-   g = fopen( "archivoCopia.txt", "w" );
-   if( f == NULL && g == NULL ){
-      	cout << "ERROR, no se pudo abrir los archivos";
+void recuperarDatosProduc( V_PRODUCTOS *vp )
+{
+    PRODUCTOS a;
+    int i,val;
+    FILE *f;
+    i = 0;
+    f = fopen("InventarioProductosOriginal.dat", "r+");
+    if( f == NULL ) {
+        cout << "ERROR al abrir el file...\n";
+        exit(0);
+    } else {
+        fread( &a, sizeof(a) ,1 , f );
+        while( !feof(f) ) {
+            vp -> p[i] = a;
+            i = i + 1;
+            fread( &a, sizeof(a), 1, f );
+        }
+        vp -> dp = i;
+        fclose( f );
+
+
+    }
+}
+
+void mostrarDatosProduc( V_PRODUCTOS vp )
+{
+   int n;
+   n = vp.dp;
+   if( n < 0 ){
+      cout << "Vector vacio"<<endl;
    } else {
-      	fread( &a, sizeof( producto ), 1, f );
-      	while( !feof( f ) ){
-      		A.codProducto=B.codProducto;
-      		A.nomProducto=B.nomProducto;
-      		A.numCantidad=B.numCantidad;
-      		A.precio=B.precio;
-         	fwrite( &b, sizeof( AGENDA ), 1, g );
-         	fread( &a, sizeof( AGENDA ), 1, f );
-      	}
-      	fclose( f );
-      	fclose( g );
+      for( int i = 0; i < n; i++ ){
+         cout << "Elemento [" << i + 1 << "] " << endl;
+         cout << "Codigo del producto: " << vp.p[i].codProductos << endl;
+         cout << "Nombre del producto: "<<vp.p[i].nomProductos << endl;
+         cout << "Cantidad: " << vp.p[i].numCantidad << endl;
+         cout << "Precio: " << vp.p[i].precio << endl;
+         cout << endl;
+      }
    }
 }
 
-void ingresar(FILE* P, Productos& producto) {
-    char temp[2];
-    system("cls");
-    cout << "\n ========================================";
-    cout << "\n       INGRESO DE NUEVO PRODUCTO";
-    cout << "\n ========================================\n";
-    cout << "\n Digite los datos del nuevo producto:\n\n";
-
-    cout << " Codigo de producto: "; cin >> producto.codProducto;
-    cin.ignore(); // Agregado para limpiar el buffer
-    cout << " Nombre del producto: "; cin.getline(producto.nomProducto, sizeof(producto.nomProducto));
-    cout << " Cantidad de unidades: "; cin >> producto.cantidad;
-    cin.ignore(); // Agregado para limpiar el buffer
-    cout << " Precio por unidad: S/. "; cin >> producto.preciounitario;
-
-    P = fopen("c:Productos.txt", "a");
-    if (P != NULL) {
-        fwrite(&producto, sizeof(producto), 1, P);
-        if (!ferror(P))
-            fclose(P);
-        else
-            cout << " Error de escritura en el archivo \n";
-    } else
-        cout << " No se puede abrir el archivo \n";
-}
-
-void mostrar(FILE* P, Productos& producto) {
-    int i;
-	system("cls");
-
-    P = fopen("c:Productos.txt", "r");
-    if (P == NULL) {
-        cout << " No se puede abrir el archivo Productos \n";
-        system("pause");
-    } else {
-    	cout << "\n ==================================================================================";
-    	cout << "\n                                  PRODUCTOS REGISTRADOS";
-    	cout << "\n ==================================================================================";
-        cout << "\n    Codigo   |      Nombre      |   Cantidad de unidades   | Precio unitario (S/.)";
-        cout << "\n ==================================================================================\n";
-        while (!feof(P)) {
-            fread(&producto, sizeof(producto), 1, P);
-            if (ferror(P)) {
-                cout << " Error de Lectura de Archivo \n";
-                system("pause");
-            }
-
-            if (!feof(P)) {
-                cout <<"      "<<producto.codProducto<<"		  "<<producto.nomProducto<<"		 "<<producto.cantidad<<"			   "<<producto.preciounitario<<endl;
-            }
-        }
-        fclose(P);
-    }
-}
-
-void mostrarPorCodigo(FILE* P, int codigo) {
-    Productos producto;
-    system("cls");
-    cout<< "\n Ingrese el codigo del producto a mostrar: ";
-    cin>>codigo;
-    
-    P = fopen("c:Productos.txt", "r");
-    if (P == NULL) {
-        cout << " No se puede abrir el archivo Productos \n";
-        system("pause");
-    } else {
-        bool encontrado = false;
-
-        while (!feof(P)) {
-            fread(&producto, sizeof(producto), 1, P);
-            if (ferror(P)) {
-                cout << " Error de Lectura de Archivo \n";
-                system("pause");
-            }
-            if (!feof(P) && producto.codProducto == codigo) {
-                encontrado = true;
-			    cout << "\n ========================================";
-			    cout << "\n           DATOS DEL PRODUCTO";
-			    cout << "\n ========================================\n";
-                cout << "\n Codigo del producto: " << producto.codProducto << "\n";
-                cout << " Nombre del producto: " << producto.nomProducto << "\n";
-                cout << " Cantidad de unidades: " << producto.cantidad << "\n";
-                cout << " Precio por unidad: S/. " << producto.preciounitario << "\n";
-                break;
-            }
-        }
-
-        if (!encontrado) {
-            cout << "\n Producto no encontrado con el codigo " << codigo << "\n";
-        }
-        fclose(P);
-    }
-}
-
-void recuperarDatos(FILE *F, PRODUCTOS p[], int *dp){
-	producto v;
-	F=fopen("inventario.dat","r");
-	*dp=-1
-	if(F==NULL){
-		cout<<"no se ha abierto el archivo"<endl;
-	}
-	else{
-		fread(&v,size(v),1,F);
-		while(!feof(F)){
-			if(*dp<0){
-				*dp=0
-				p[*dp]=v;
-				*dp=*dp+1
-			}
-			else{
-				if(*dp!=dimension){
-					p[*dp]=v;
-					*dp=*dp+1
-				}
-				else{
-					cout<<"fuera de rango"<<endl;
-				}
-			}
-			fread(&v,size(v),1,F);
-		}
-	}
-}
-void salir() {
-    cout << "\n Gracias por usar nuestro sistema. Vuelva pronto.\n";
-}
-    P = fopen("c:Productos.txt", "r");
-    if (P == NULL) {
-        cout << " No se puede abrir el archivo Productos \n";
-        system("pause");
-    } else {
-        bool encontrado = false;
-
-        while (!feof(P)) {
-            fread(&producto, sizeof(producto), 1, P);
-            if (ferror(P)) {
-                cout << " Error de Lectura de Archivo \n";
-                system("pause");
-            }
-            if (!feof(P) && producto.codProducto == codigo) {
-                encontrado = true;
-			    cout << "\n ========================================";
-			    cout << "\n           DATOS DEL PRODUCTO";
-			    cout << "\n ========================================\n";
-                cout << "\n Codigo del producto: " << producto.codProducto << "\n";
-                cout << " Nombre del producto: " << producto.nomProducto << "\n";
-                cout << " Cantidad de unidades: " << producto.cantidad << "\n";
-                cout << " Precio por unidad: S/. " << producto.preciounitario << "\n";
-                break;
-            }
-        }
-
-        if (!encontrado) {
-            cout << "\n Producto no encontrado con el codigo " << codigo << "\n";
-        }
-        fclose(P);
-    }
-}
-
-void salir() {
-    cout << "\n Gracias por usar nuestro sistema. Vuelva pronto.\n";
-}
-
-void eliminarDatoProd(V_PRODUCTOS *vp)
+void IngresarOperaciones( MODIFICADOR *Vm )
 {
-    PRODUCTOS aux;
-    int pos, n, i;
-    char confir;
-    n=vp->dx;
-    if (n>0) {
-        if (n<=MAX) {
-            cout<<"Ingrese la posición de la mercancia a eliminar ---> ";
-            cin>> pos;
-            if(pos>=0 && pos<=n) {
-                system("cls");
-		cout<<"Esta seguro de eliminar esta posicion?---s/n\n";
-                fflush(stdin);
-                cin>>confir;
-                if(confir=='s'||confir=='S') {
-                    for (i=(pos-1); i<n; i++) {
-			aux = vp->x[i];
-                        vp->x[i] = vp->x[i+1];
-                        vp->x[i+1] = aux;
-                    }
-                    n=n-1;
-                    vp->dx=n;
-                }
+   PRODUCTOS a;
+   MODIFICADOR b;
+   int opcion, auxiliar, i = 0;
+   char decision;
+   cout << "Ingrese el codigo del producto: ";
+   cin >> b.codProducto;
 
-            } else {
-                cout<<"Posición no encontrada\n";
-                system("pause");
-            }
-        } else {
-            cout<<"Dimension fuera de rango\n";
-            system("pause");
-        }
-    } else {
-        cout<<"Registro mercancia vacio\n";
-        system("pause");
-    }
+   do{
+      cout << "Seleccione la operacion: " << endl;
+      cout << "0. Salir" << endl;
+      cout << "1. Venta" << endl;
+      cout << "2. Compra" << endl;
+      cout << "3. Devolucion" << endl;
+      cout << "Opcion: ";
+      cin >> opcion;
+      switch( opcion ){
+         case 0:
+            break;
+         case 1:
+
+            cout << "Operacion de Venta" << endl;
+            b.vm.m[i].codOperacion = 'V';
+            cout << "Ingrese la cantidad de se vendera: ";
+            cin >> b.vm.m[i].numUnidades;
+
+            break;
+         case 2:
+
+            cout << "Operacion de Compra" << endl;
+            b.vm.m[i].codOperacion = 'C';
+            cout << "Ingrese la cantidad de se comprara: ";
+            cin >> b.vm.m[i].numUnidades;
+
+            break;
+         case 3:
+
+            cout << "Operacion de Devolucion" << endl;
+            b.vm.m[i].codOperacion = 'D';
+            cout << "Ingrese la cantidad de se devolvera: ";
+            cin >> b.vm.m[i].numUnidades;
+
+            break;
+         default:
+
+            cout << "Opcion incorrecta..." << endl;
+
+            break;
+
+      }
+      fflush( stdin );
+      cout << "Desea hacer otra operacion para el producto " << b.codProducto <<" --->S/N" << endl;
+      cout << "Opcion: ";
+      cin >> decision;
+      i = i + 1;
+      cout<<endl;
+   }while( decision == 's' || decision == 'S' );
+   b.vm.dm = i;
+   *Vm = b;
+   cout<<endl;
+
+}
+void crearFileModificador()
+{
+   int n;
+   MODIFICADOR a;
+   FILE *f;
+   f = fopen( "ArchivoModificador.dat", "w");
+   if( f == NULL ){
+      cout << "ERROR, no se pudo abrir el file";
+   } else {
+      cout << "Ingrese la cantidad de elementos: ";
+      cin >> n;
+      for( int i = 0; i < n; i++ ){
+         IngresarOperaciones( &a );
+         fwrite( &a, sizeof( MODIFICADOR ), 1, f );
+      }
+      fclose(f);
+   }
 }
 
-void recuperarDatosModi(V_MODIFICADOR *vp)
+void leerFileModificador(){
+   MODIFICADOR a;
+   FILE *f;
+   f = fopen( "ArchivoModificador.dat", "r+");
+
+   if( f == NULL ){
+      cout << "ERROR, no se pudo abrir el file" << endl;
+   } else {
+      fread( &a, sizeof( MODIFICADOR ), 1, f );
+      while( !feof( f ) ){
+         cout<<a.codProducto<<"       ";
+         for( int j = 0; j < a.vm.dm ; j++ ){
+         cout<<"                   ";
+         cout<<a.vm.m[j].codOperacion;
+         cout<<"    ";
+         cout<<a.vm.m[j].numUnidades<<endl;
+         }
+         fread( &a, sizeof( MODIFICADOR ), 1, f );
+      }
+      fclose( f );
+   }
+}
+
+int buscarXCodigoProduc( V_PRODUCTOS vp, int codigo)
 {
-    MODIFICADOR a;
-    int i,val;
-    FILE *f;
-    i=0;
-    f=fopen("datosMercancia.dat", "r");
-    if(f==NULL) {
-        cout<<"ERROR al abrir el file...\n";
-        exit(0);
-    } else {
-        fread(&a,sizeof(a),1,f);
-        while(!feof(f)) {
-            vp->x[i]=a;
-            i=i+1;
-            fread(&a,sizeof(a),1,f);
-        }
-        vx->dx=i;
-        fclose(f);
-    }
+   int i, n;
+   bool hallado = false;
+   n = vp.dp;
+   i = 0;
+   if( n > 0 ){
+      while( i < n && hallado == false ){
+         if( codigo == vp.p[i].codProductos ){
+            hallado = true;
+            return i;
+         } else {
+            i = i + 1;
+         }
+
+      }
+      if( hallado == false ){
+            cout << "No se encontro el codigo del producto" << endl;
+         }
+   } else {
+      cout << "Vector vacio..."<< endl;
+      return -1 ;
+   }
+   return 0;
 }
